@@ -8,10 +8,7 @@ def part1(input):
 
     for line in input:
         (start, end, char, password) = __get_parts(line)
-
-        count = password.count(char)
-        if (count >= int(start) and count <= int(end)):
-            matches += 1
+        matches += int((int(start) <= password.count(char) <= int(end)))
 
     return matches
 
