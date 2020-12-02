@@ -20,10 +20,7 @@ def part2(input):
 
     for line in input:
         (start, end, char, password) = __get_parts(line)
-
-        start_match = password[int(start) - 1] == char
-        end_match = password[int(end) - 1] == char
-        if (start_match or end_match) and not (start_match and end_match):
+        if (int(password[int(start) - 1] == char) + int(password[int(end) - 1] == char) == 1):
             matches += 1
 
     return matches
