@@ -1,47 +1,48 @@
 import math
 
 def get_seat_id(input):
-    start_row = 0
-    end_row = 127
-    start_seat = 0
-    end_seat = 7
+    rows = [0, 127]
+    seats = [0, 7]
     for i in range(7):
+        new_limit = rows[0] + math.floor((rows[1] - rows[0]) / 2)
         if input[i] == 'F':
-            end_row = start_row + math.floor((end_row - start_row) / 2)
-        if input[i] == 'B':
-            start_row = start_row + math.floor((end_row - start_row) / 2) + 1
+            rows[1] = new_limit
+        else:
+            rows[0] = new_limit + 1
 
-    for i in range(3):
-        if input[i + 7] == 'L':
-            end_seat = start_seat + math.floor((end_seat - start_seat) / 2)
-        if input[i + 7] == 'R':
-            start_seat = start_seat + math.floor((end_seat - start_seat) / 2) + 1
+    for i in range(7, 10):
+        new_limit = seats[0] + math.floor((seats[1] - seats[0]) / 2)
+        if input[i] == 'L':
+            seats[1] = new_limit
+        else:
+            seats[0] = new_limit + 1
 
-    return start_row * 8 + start_seat
+    return rows[0] * 8 + seats[0]
 
 def part1(input):
-    highest_seat_id = -1
+    highest_seat_id = None
 
     for line in input:
         current = get_seat_id(line)
-        if (current > highest_seat_id):
+        if (highest_seat_id == None or current > highest_seat_id):
             highest_seat_id = current
 
     return highest_seat_id
 
 
 def part2(input):
-    lowest_seat_id = 99999999999
-    highest_seat_id = -1
+    lowest_seat_id = None
+    highest_seat_id = None
 
     seats = set()
 
     for line in input:
         current = get_seat_id(line)
         seats.add(current)
-        if (current > highest_seat_id):
+        if (highest_seat_id == None or current > highest_seat_id):
             highest_seat_id = current
-        if (current < lowest_seat_id):
+
+        if (lowest_seat_id == None or current < lowest_seat_id):
             lowest_seat_id = current
 
     for i in range(lowest_seat_id, highest_seat_id + 1):
