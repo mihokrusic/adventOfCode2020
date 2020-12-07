@@ -6,7 +6,6 @@ def __parse_input(input):
         temp = re.match(r"(.*) bags contain (.*)", line.rstrip()).groups()
         contains_temp = temp[1][:-1].split(', ')
         contains = list()
-
         for el in contains_temp:
             el_match = re.match(r"(\d*) (.*) bags?", el)
             contains.append(None if el_match == None else el_match.groups())
@@ -36,4 +35,22 @@ def part1(input):
 def part2(input):
     parsed = __parse_input(input)
 
-    return 2
+    bags = [('shiny gold', 1)]
+    current_bags = 0
+
+    ix = 0
+    while len(bags) > 0:
+        child_bags = []
+        line = parsed[ix]
+        if line[0] == bags[0][0]:
+            for contain_el in line[1]:
+                if contain_el != None:
+                    child_bags.append((contain_el[1], int(contain_el[0]) * int(bags[0][1])))
+            bags.extend(child_bags)
+            popped_bag = bags.pop(0)
+            current_bags += popped_bag[1]
+            ix = 0
+        else:
+            ix += 1
+
+    return current_bags - 1
