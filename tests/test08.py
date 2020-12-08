@@ -4,7 +4,7 @@ import unittest
 from solutions import day08
 from utility import inputs
 
-class TestPart1(unittest.TestCase):
+class Part1(unittest.TestCase):
     def test_01(self):
         input = inputs.read("input08")
         result = day08.part1(input)
@@ -14,7 +14,7 @@ class TestPart1(unittest.TestCase):
         result = day08.part1(input)
         self.assertEqual(result, 1949)
 
-class TestPart2(unittest.TestCase):
+class Part2(unittest.TestCase):
     def test_02(self):
         input = inputs.read("input08")
         result = day08.part2(input)

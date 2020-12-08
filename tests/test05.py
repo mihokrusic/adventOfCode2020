@@ -4,7 +4,7 @@ import unittest
 from solutions import day05
 from utility import inputs
 
-class TestDay05Part1(unittest.TestCase):
+class Part1(unittest.TestCase):
     def test_01(self):
         result = day05.get_seat_id('BFFFBBFRRR')
         self.assertEqual(result, 567)
@@ -19,7 +19,7 @@ class TestDay05Part1(unittest.TestCase):
         result = day05.part1(input)
         self.assertEqual(result, 890)
 
-class TestDay05Part2(unittest.TestCase):
+class Part2(unittest.TestCase):
     def test_in(self):
         input = inputs.read("input05_actual")
         result = day05.part2(input)

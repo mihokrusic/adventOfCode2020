@@ -4,7 +4,7 @@ import unittest
 from solutions import day01
 from utility import inputs
 
-class TestDay01Part1(unittest.TestCase):
+class Part1(unittest.TestCase):
     def test_01(self):
         input = inputs.read("input01")
         num_input = [int(el) for el in input]
@@ -17,7 +17,7 @@ class TestDay01Part1(unittest.TestCase):
         result = day01.part1(num_input)
         self.assertEqual(result, 440979)
 
-class TestDay01Part2(unittest.TestCase):
+class Part2(unittest.TestCase):
     def test_01(self):
         input = inputs.read("input01")
         num_input = [int(el) for el in input]
