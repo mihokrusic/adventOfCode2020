@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import unittest
+import os
+
+os.sys.path.insert(0, os.getcwd())
 
 from solutions import day05
 from utility import inputs
