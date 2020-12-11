@@ -11,21 +11,21 @@ class Part1(unittest.TestCase):
     def test_01(self):
         input = inputs.read("input11")
         result = day11.part1(input)
-        self.assertEqual(result, 1)
-    # def test_in(self):
-    #     input = inputs.read("input11_actual")
-    #     result = day11.part1(input)
-    #     self.assertEqual(result, 1)
+        self.assertEqual(result, 37)
+    def test_in(self):
+        input = inputs.read("input11_actual")
+        result = day11.part1(input)
+        self.assertEqual(result, 2424)
 
 class Part2(unittest.TestCase):
     def test_01(self):
         input = inputs.read("input11")
         result = day11.part2(input)
-        self.assertEqual(result, 2)
-    # def test_in(self):
-    #     input = inputs.read("input11_actual")
-    #     result = day11.part2(input)
-    #     self.assertEqual(result, 2)
+        self.assertEqual(result, 26)
+    def test_in(self):
+        input = inputs.read("input11_actual")
+        result = day11.part2(input)
+        self.assertEqual(result, 2208)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
