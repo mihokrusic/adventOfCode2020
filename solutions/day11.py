@@ -1,11 +1,4 @@
 import copy
-import os
-import sys
-
-def __print_seats(seats):
-    for row in seats:
-        print(row)
-    print('\n')
 
 def __get_seat_value(seats, y, x, y_delta, x_delta, adjacent):
     if adjacent:
@@ -99,15 +92,3 @@ def part2(input):
         if not changed:
             break
     return __get_occupied(seats)
-
-def read(fileName):
-    input = []
-    with open(os.path.join(sys.path[0], fileName), "r") as infile:
-        for line in infile:
-            input.append(line)
-    return input
-
-
-# if __name__ == '__main__':
-#     input = read("input11")
-#     part1(input)
