@@ -15,7 +15,7 @@ def part1(input):
             mem_instruction = mem_test.groups()
             mem_location = int(mem_instruction[0])
             mem_value = int(mem_instruction[1])
-            mem_value_bin = ("0" * (36 - len(bin(mem_value)[2:]))) + str(bin(mem_value)[2:])
+            mem_value_bin = ("0" * (36 - len(format(mem_value, "b")))) + format(mem_value, "b")
 
             mem_value_final = ""
             for i in range(len(mask)):
@@ -25,7 +25,6 @@ def part1(input):
                     mem_value_final += mask[i]
 
             memory[mem_location] = int(mem_value_final, 2)
-
 
     return sum(memory.values())
 
@@ -39,12 +38,10 @@ def part2(input):
 
         if (mask_test != None):
             mask = mask_test.groups()[0]
-            continue
-
-        if mem_test != None:
+        else:
             mem_instruction = mem_test.groups()
             mem_location = int(mem_instruction[0])
-            mem_location_bin = ("0" * (36 - len(bin(mem_location)[2:]))) + str(bin(mem_location)[2:])
+            mem_location_bin = ("0" * (len(mask) - len(format(mem_location, "b")))) + str(format(mem_location, "b"))
             mem_value = int(mem_instruction[1])
 
             mem_location_mask = ""
@@ -57,16 +54,17 @@ def part2(input):
 
             memory_addresses = list()
             for i in range(2**unknown_cnt):
-                i_bin = bin(i)[2:]
-                current = mem_location_mask
+                i_bin = format(i, "b")
+
                 ix = 0
                 unknown_mask = "0" * (unknown_cnt - len(i_bin)) + i_bin
 
-                for j in range(len(current)):
-                    if current[j] == "X":
-                        current = current[:j] + unknown_mask[ix] + current[j + 1:]
+                target = mem_location_mask
+                for j in range(len(target)):
+                    if target[j] == "X":
+                        target = target[:j] + unknown_mask[ix] + target[j + 1:]
                         ix += 1
-                memory_addresses.append(int(current, 2))
+                memory_addresses.append(int(target, 2))
 
             for m in memory_addresses:
                 memory[m] = mem_value
