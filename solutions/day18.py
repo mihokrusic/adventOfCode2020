@@ -49,7 +49,7 @@ def __parse(formula):
 
     return nodes, max_depth
 
-def __calc_node(left, right, operator):
+def __calc(left, right, operator):
     if operator == '*':
         return left * right
     if operator == '+':
@@ -63,28 +63,22 @@ def __remove_groups(nodes, max_depth, addition_first = False):
     result_part = 0
     ix = 0
     while ix < len(results):
-        if results[ix].depth == depth_curr:
+        node = results[ix]
+        if node.depth == depth_curr:
             if start_ix == None:
                 start_ix = ix
-        else:
-            if start_ix != None:
-                if addition_first:
-                    result_part = __calc_addition_first(results[start_ix:ix])
-                else:
-                    result_part = __calc_no_precedence(results[start_ix:ix])
-                results[ix].left = result_part
-                if (start_ix > 0):
-                    results[start_ix - 1].right = result_part
-                start_ix = None
+        elif start_ix != None:
+            result_part = __calc_nodes(results[start_ix:ix], addition_first)
+            node.left = result_part
+            if (start_ix > 0):
+                results[start_ix - 1].right = result_part
+            start_ix = None
 
         ix += 1
 
         if (ix == len(results)):
             if start_ix != None:
-                if addition_first:
-                    result_part = __calc_addition_first(results[start_ix:ix])
-                else:
-                    result_part = __calc_no_precedence(results[start_ix:ix])
+                result_part = __calc_nodes(results[start_ix:ix], addition_first)
                 if (start_ix > 0):
                     results[start_ix - 1].right = result_part
                 start_ix = None
@@ -97,48 +91,48 @@ def __remove_groups(nodes, max_depth, addition_first = False):
                     break
     return results
 
-def __calc_no_precedence(nodes):
-    result = None
-    for node in nodes:
-        result = __calc_node(result if result != None else node.left, node.right, node.operator)
-    return result
-
-def __calc_addition_first(nodes):
+def __remove_additions(nodes):
     results = copy.deepcopy(nodes)
     start_ix = None
-    ix = 0
     result_part = 0
-    while (ix < len(results)):
+    ix = 0
+    while ix < len(results):
         node = results[ix]
-
         if node.operator == '+':
             if start_ix == None:
                 start_ix = ix
-        else:
-            if start_ix != None:
-                result_part = __calc_no_precedence(results[start_ix:ix])
-                results[ix].left = result_part
-                if (start_ix > 0):
-                    results[start_ix - 1].right = result_part
-                del results[start_ix:ix]
-                ix = start_ix - 1
-                start_ix = None
+        elif start_ix != None:
+            result_part = __calc_nodes(results[start_ix:ix])
+            node.left = result_part
+            if (start_ix > 0):
+                results[start_ix - 1].right = result_part
+            del results[start_ix:ix]
+            ix = start_ix - 1
+            start_ix = None
 
         ix += 1
 
         if (ix == len(results)):
             if start_ix != None:
-                result_part = __calc_no_precedence(results[start_ix:ix])
+                result_part = __calc_nodes(results[start_ix:ix])
                 if (start_ix > 0):
                     results[start_ix - 1].right = result_part
-                if len(results) != 1:
-                    del results[start_ix:ix]
+                del results[start_ix:ix]
                 start_ix = None
 
     if len(results) == 0:
-        return result_part
+        results.append(Node(0, result_part, '+', 0))
+    return results
+
+def __calc_nodes(nodes, precedence = False):
+    if not precedence:
+        result = None
+        for node in nodes:
+            result = __calc(result if result != None else node.left, node.right, node.operator)
+        return result
     else:
-        return __calc_no_precedence(results)
+        results = __remove_additions(nodes)
+        return __calc_nodes(results)
 
 def part1(input):
     result = 0
@@ -146,7 +140,7 @@ def part1(input):
         formula = line.rstrip().replace(' ', '')
         nodes, max_depth = __parse(formula)
         nodes = __remove_groups(nodes, max_depth)
-        formula_result = __calc_no_precedence(nodes)
+        formula_result = __calc_nodes(nodes)
         result += formula_result
     return result
 
@@ -156,7 +150,7 @@ def part2(input):
         formula = line.rstrip().replace(' ', '')
         nodes, max_depth = __parse(formula)
         nodes = __remove_groups(nodes, max_depth, True)
-        formula_result = __calc_addition_first(nodes)
+        formula_result = __calc_nodes(nodes, True)
         result += formula_result
 
     # print('\n\n')
