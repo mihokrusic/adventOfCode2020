@@ -8,7 +8,7 @@ def __get_rules(lines_to_parse):
         constant = re.match(r'^(\d+): "(\w+)"', line)
         if constant != None:
             rule_id, value = constant.groups()
-            rules[int(rule_id)] = set([value])
+            rules[int(rule_id)] = f'{value}'
             continue
 
         complex = re.match(r'^(\d+): (.*)', line)
@@ -19,27 +19,23 @@ def __get_rules(lines_to_parse):
     return __calc_rules(rules, to_parse, 0, 1)
 
 def __calc_rules(rules, to_parse, rule_id, level):
-    def add_to_current(current, child_rule):
-        if len(current) == 0:
-            current.extend(list(child_rule))
-        else:
-            current = [''.join(el) for el in itertools.product(*[current, list(child_rule)])]
-        return current
-
     source = to_parse[rule_id]
-    allowed = set()
+    allowed = ''
     for part in source:
-        current = list()
+        current = ''
         for child_rule in part:
             if child_rule in rules:
-                current = add_to_current(current, rules[child_rule])
+                current += f'{rules[child_rule]}'
             else:
-                # print(rule_id, child_rule, level, current, allowed)
-                rules = __calc_rules(rules, to_parse, child_rule, level + 1)
-                current = add_to_current(current, rules[child_rule])
+                if level < 50:
+                    rules = __calc_rules(rules, to_parse, child_rule, level + 1)
+                    current += f'({rules[child_rule]})'
+        if allowed != '':
+            allowed += '|' + current
+        else:
+            allowed = current
 
-        allowed.update(current)
-    rules[rule_id] = allowed
+    rules[rule_id] = f'({allowed})'
     return rules
 
 def part1(input):
@@ -54,10 +50,16 @@ def part1(input):
     # parse
     rules = __get_rules(lines_to_parse)
 
+    # print('\n\n')
+    # for key in rules:
+    #     print(key, rules[key])
+    # print('\n\n')
+
     # check
+    pattern = re.compile(r'^' + rules[0] + '$')
     matches = 0
     for line in lines_to_check:
-        if line in rules[0]:
+        if pattern.match(line) != None:
             matches += 1
     return matches
 
@@ -82,7 +84,6 @@ def part2(input):
 
     # parse
     rules = __get_rules(lines_to_parse)
-
     # check
     matches = 0
     for line in lines_to_check:

@@ -25,7 +25,7 @@ class Part1(unittest.TestCase):
 #     def test_01(self):
 #         input = inputs.read("input19_1")
 #         result = day19.part2(input)
-#         self.assertEqual(result, 3)
+#         self.assertEqual(result, 12)
 #     def test_in(self):
 #         input = inputs.read("input19_actual")
 #         result = day19.part2(input)
