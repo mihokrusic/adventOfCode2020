@@ -83,6 +83,10 @@ def get_image(tiles, tile_hashes, corners, corners_found_elems):
             image_ids[i][j] = next_tile_id
             image[i][j] = next_tile
 
+    for row in image:
+        for ix, tile in enumerate(row):
+            row[ix] = tile[1:-1, 1:-1]
+
     return image
 
 def check_for_monsters(image):
@@ -95,11 +99,14 @@ def check_for_monsters(image):
         for mid_hit in mid_hits:
             above = False
             below = False
-            beginning = mid_hit.span()[0]
-            if line_above[beginning + 18] == '#':
+            mid_hit_pos = mid_hit.span()
+            if line_above[mid_hit_pos[0] + 18] == '#':
                 above = True
-            if line_below[beginning + 1] == '#' and line_below[beginning + 4] == '#' and line_below[beginning + 7] == '#' and line_below[beginning + 10] == '#' and line_below[beginning + 13] == '#' and  line_below[beginning + 16] == '#':
-                below = True
+            below_hits = re.finditer(r'(?=.{1}#.{2}#.{2}#.{2}#.{2}#.{2}#.{3})', line_below)
+            for bh in below_hits:
+                below_hit_pos = bh.span()
+                if below_hit_pos[0] == mid_hit_pos[0]:
+                    below = True
 
             if above and below:
                 matches += 1
@@ -148,10 +155,10 @@ def solve(input, part):
 
     hash_numbers = 0
     for row in image:
-        for i in range(1, image_sides - 1):
+        for i in range(image_sides):
             s = []
             for col in row:
-                c = col[i][1:image_sides - 1].tolist()
+                c = col[i][:].tolist()
                 hash_numbers += c.count('#')
                 s.extend(c)
 
@@ -166,3 +173,5 @@ def solve(input, part):
         monsters = check_for_monsters(image_nb)
         if monsters > 0:
             return hash_numbers - monsters * monster.count('#')
+
+    return -1
