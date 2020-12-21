@@ -1,20 +1,34 @@
 #!/usr/bin/env python3
-import time
+import re
 import numpy as np
 from math import sqrt
 from numpy.core.defchararray import title
 
-from numpy.lib.arraysetops import unique
+monster = """                  #
+#    ##    ##    ###
+ #  #  #  #  #  #   """
 
-def get_tile_with_hash(hash, tile_hashes, ignore_id):
+def get_next_tile_with_hash(hash, tile_hashes, ignore_id):
     for th in tile_hashes:
         if th[0] == ignore_id:
             continue
 
         if hash in th[1]:
-            return th[0]
+            return th[0], th[1].index(hash)
 
     return -1
+
+def rotate_flip_next_tile(next_tile, next_hash_ix, normal_offset, flip_offset):
+    if 0 <= next_hash_ix < 4:
+        next_tile = np.flip(np.array(next_tile), 1)
+        rot_times = next_hash_ix - normal_offset
+        if rot_times != 0:
+            next_tile = np.rot90(np.array(next_tile), -rot_times)
+    else:
+        rot_times = next_hash_ix - flip_offset
+        if rot_times != 0:
+            next_tile = np.rot90(np.array(next_tile), -rot_times)
+    return next_tile
 
 def get_border_hash(tile):
     t = tile[0]
@@ -22,113 +36,75 @@ def get_border_hash(tile):
     b = list(reversed(tile[-1]))
     l = list(reversed([y[0] for y in tile]))
 
-    return [
+    return (
         int(''.join(t).replace('#', '1').replace('.', '0'),2),
         int(''.join(r).replace('#', '1').replace('.', '0'),2),
         int(''.join(b).replace('#', '1').replace('.', '0'),2),
         int(''.join(l).replace('#', '1').replace('.', '0'),2)
-    ]
+    )
 
 def get_image(tiles, tile_hashes, corners, corners_found_elems):
-    used_sides = dict()
-    for th in tile_hashes:
-        used_sides[th[0]] = []
-        print(th)
-    print('\n\n')
-
-
-
-    print(corners)
-    print(corners_found_elems)
-
-
     image_side = int(sqrt(len(tiles.keys())))
 
     image = [[[] for _ in range(image_side)] for _ in range(image_side)]
     image_ids = [[0 for _ in range(image_side)] for _ in range(image_side)]
+    for i in range(0, image_side):
+        if i == 0:
+            first_corner_id = corners[0][0]
+            first_corner_tile = np.array(tiles[corners[0][0]])
+            # blah
+            if (corners_found_elems[0] == [0, 1]):
+                first_corner_tile = np.rot90(first_corner_tile, -1)
+            if (corners_found_elems[0] == [1, 2]):
+                pass
+            if (corners_found_elems[0] == [2, 3]):
+                first_corner_tile = np.rot90(first_corner_tile, 1)
+            if (corners_found_elems[0] == [0, 3]):
+                first_corner_tile = np.rot90(first_corner_tile, 2)
+            image_ids[0][0] = first_corner_id
+            image[0][0] = np.array(first_corner_tile)
+        else:
+            current_tile_id = image_ids[i - 1][0]
+            current_tile = image[i - 1][0]
+            current_hash = get_border_hash(current_tile)[2]
+            next_tile_id, next_hash_ix = get_next_tile_with_hash(current_hash, tile_hashes, current_tile_id)
 
+            next_tile = rotate_flip_next_tile(np.array(tiles[next_tile_id]), next_hash_ix, 0, 4)
+            image_ids[i][0] = next_tile_id
+            image[i][0] = next_tile
 
+        for j in range(1, image_side):
+            current_tile_id = image_ids[i][j - 1]
+            current_tile = image[i][j - 1]
+            current_hash = get_border_hash(current_tile)[1]
+            next_tile_id, next_hash_ix = get_next_tile_with_hash(current_hash, tile_hashes, current_tile_id)
 
-
-    # first (0,0)
-    image_ids[0][0] = corners[0][0]
-    image[0][0] = np.rot90(np.array(tiles[corners[0][0]]),-1)
-
-    # next (0, 1)
-    border_hash = get_border_hash(image[0][0])[1]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[0][0])
-    print(border_hash, next)
-
-    image_ids[0][1] = next
-    image[0][1] = np.rot90(np.array(tiles[next]),-1)
-
-    # next (0, 2)
-    border_hash = get_border_hash(image[0][1])[1]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[0][1])
-    print(border_hash, next)
-
-    image_ids[0][2] = next
-    image[0][2] = np.rot90(np.array(tiles[next]),-1)
-
-    # next (1, 0)
-    border_hash = get_border_hash(image[0][0])[2]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[0][0])
-    print(border_hash, next)
-
-    image_ids[1][0] = next
-    image[1][0] = np.rot90(np.array(tiles[next]),-1)
-
-    # next (1, 1)
-    border_hash = get_border_hash(image[1][0])[1]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[1][0])
-    print(border_hash, next)
-
-    image_ids[1][1] = next
-    image[1][1] = np.rot90(np.array(tiles[next]),-1)
-
-    # next (1, 2)
-    border_hash = get_border_hash(image[1][1])[1]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[1][1])
-    print(border_hash, next)
-
-    image_ids[1][2] = next
-    image[1][2] = np.rot90(np.array(tiles[next]),-1)
-
-    # next (3, 0)
-    border_hash = get_border_hash(image[1][0])[2]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[1][0])
-    print(border_hash, next)
-
-    image_ids[2][0] = next
-    image[2][0] = np.rot90(np.flip(np.array(tiles[next]),1),1)
-
-    # next (3, 1)
-    border_hash = get_border_hash(image[2][0])[1]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[2][0])
-    print(border_hash, next)
-
-    image_ids[2][1] = next
-    image[2][1] = np.rot90(np.array(tiles[next]),2)
-
-    # next (3, 2)
-    border_hash = get_border_hash(image[2][1])[1]
-    next = get_tile_with_hash(border_hash, tile_hashes, image_ids[2][1])
-    print(border_hash, next)
-
-    image_ids[2][2] = next
-    image[2][2] = np.rot90(np.array(tiles[next]),1)
-
-
-
-
-
-    print('\n\n')
-    for row in image_ids:
-        print(row)
-    print('\n\n')
+            next_tile = rotate_flip_next_tile(np.array(tiles[next_tile_id]), next_hash_ix, 1, 5)
+            image_ids[i][j] = next_tile_id
+            image[i][j] = next_tile
 
     return image
 
+def check_for_monsters(image):
+    matches = 0
+    for ix in range(1, len(image) - 1):
+        line_above = ''.join(image[ix - 1])
+        line = ''.join(image[ix])
+        line_below = ''.join(image[ix + 1])
+        mid_hits = re.finditer(r'#.{4}##.{4}##.{4}###', line)
+        for mid_hit in mid_hits:
+            above = False
+            below = False
+            beginning = mid_hit.span()[0]
+            if line_above[beginning + 18] == '#':
+                above = True
+            if line_below[beginning + 1] == '#' and line_below[beginning + 4] == '#' and line_below[beginning + 7] == '#' and line_below[beginning + 10] == '#' and line_below[beginning + 13] == '#' and  line_below[beginning + 16] == '#':
+                below = True
+
+            if above and below:
+                matches += 1
+
+    return matches
 
 def solve(input, part):
     tiles = dict()
@@ -167,131 +143,26 @@ def solve(input, part):
         return corners_multiple
 
     image = get_image(tiles, tile_hashes, corners, corners_found_elems)
+    image_sides = len(image[0][0])
+    image_nb = []
 
-    print('\n\n')
+    hash_numbers = 0
     for row in image:
-        s = ''
-        for i in range(10):
-            s = ''
-            for j in range(len(row)):
-                s +=  ''.join(row[j][i])
-            print(s)
-        print('')
-    print('\n\n')
+        for i in range(1, image_sides - 1):
+            s = []
+            for col in row:
+                c = col[i][1:image_sides - 1].tolist()
+                hash_numbers += c.count('#')
+                s.extend(c)
 
+            image_nb.append(s)
 
+    image_nb = np.array(image_nb)
+    for i in range(8):
+        if i == 4:
+            image_nb = np.flip(image_nb, 1)
 
-
-
-
-if __name__ == '__main__':
-    input = """Tile 2311:
-..##.#..#.
-##..#.....
-#...##..#.
-####.#...#
-##.##.###.
-##...#.###
-.#.#.#..##
-..#....#..
-###...#.#.
-..###..###
-
-Tile 1951:
-#.##...##.
-#.####...#
-.....#..##
-#...######
-.##.#....#
-.###.#####
-###.##.##.
-.###....#.
-..#.#..#.#
-#...##.#..
-
-Tile 1171:
-####...##.
-#..##.#..#
-##.#..#.#.
-.###.####.
-..###.####
-.##....##.
-.#...####.
-#.##.####.
-####..#...
-.....##...
-
-Tile 1427:
-###.##.#..
-.#..#.##..
-.#.##.#..#
-#.#.#.##.#
-....#...##
-...##..##.
-...#.#####
-.#.####.#.
-..#..###.#
-..##.#..#.
-
-Tile 1489:
-##.#.#....
-..##...#..
-.##..##...
-..#...#...
-#####...#.
-#..#.#.#.#
-...#.#.#..
-##.#...##.
-..##.##.##
-###.##.#..
-
-Tile 2473:
-#....####.
-#..#.##...
-#.##..#...
-######.#.#
-.#...#.#.#
-.#########
-.###.#..#.
-########.#
-##...##.#.
-..###.#.#.
-
-Tile 2971:
-..#.#....#
-#...###...
-#.#.###...
-##.##..#..
-.#####..##
-.#..####.#
-#..#.#..#.
-..####.###
-..#.#.###.
-...#.#.#.#
-
-Tile 2729:
-...#.#.#.#
-####.#....
-..#.#.....
-....#..#.#
-.##..##.#.
-.#.####...
-####.#.#..
-##.####...
-##..#.##..
-#.##...##.
-
-Tile 3079:
-#.#.#####.
-.#..######
-..#.......
-######....
-####.#..#.
-.#...#.##.
-#.#####.##
-..#.###...
-..#.......
-..#.###..."""
-    start_time = time.time()
-    solve(input, 2)
-    print("--- %s seconds ---\n\n" % (time.time() - start_time))
+        image_nb = np.rot90(image_nb, 1)
+        monsters = check_for_monsters(image_nb)
+        if monsters > 0:
+            return hash_numbers - monsters * monster.count('#')
