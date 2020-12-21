@@ -158,7 +158,7 @@ def solve(input, part):
 
     hash_numbers = 0
     for row in image:
-        hash_numbers += row.tolist().count("#")
+        hash_numbers += np.count_nonzero(row == '#')
 
     for i in range(8):
         if i == 4:
