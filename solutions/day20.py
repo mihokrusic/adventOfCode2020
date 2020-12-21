@@ -87,7 +87,12 @@ def get_image(tiles, tile_hashes, corners, corners_found_elems):
         for ix, tile in enumerate(row):
             row[ix] = tile[1:-1, 1:-1]
 
-    return image
+    image_concat = []
+    for row in image:
+        row_all = np.concatenate(row)
+        image_concat.extend(np.concatenate(row, axis=1))
+
+    return image_concat
 
 def check_for_monsters(image):
     matches = 0
@@ -150,27 +155,17 @@ def solve(input, part):
         return corners_multiple
 
     image = get_image(tiles, tile_hashes, corners, corners_found_elems)
-    image_sides = len(image[0][0])
-    image_nb = []
 
     hash_numbers = 0
     for row in image:
-        for i in range(image_sides):
-            s = []
-            for col in row:
-                c = col[i][:].tolist()
-                hash_numbers += c.count('#')
-                s.extend(c)
+        hash_numbers += row.tolist().count("#")
 
-            image_nb.append(s)
-
-    image_nb = np.array(image_nb)
     for i in range(8):
         if i == 4:
-            image_nb = np.flip(image_nb, 1)
+            image = np.flip(image, 1)
 
-        image_nb = np.rot90(image_nb, 1)
-        monsters = check_for_monsters(image_nb)
+        image = np.rot90(image, 1)
+        monsters = check_for_monsters(image)
         if monsters > 0:
             return hash_numbers - monsters * monster.count('#')
 
