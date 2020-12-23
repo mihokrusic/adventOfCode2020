@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 def get_destination(current, lowest, highest, picked):
     destination = current - 1
     while True:
@@ -24,7 +22,7 @@ def iterate(cups, cnt):
 
         picked = cups[ix + 1:ix + 4]
 
-        del cups[ix + 1:ix + 4]
+        cups[ix + 1:ix + 4] = []
         if len(picked) < 3:
             old_len = len(picked)
             picked.extend(cups[0:3-len(picked)])
@@ -36,10 +34,10 @@ def iterate(cups, cnt):
             next = cups[0]
 
         destination = get_destination(current, lowest, highest, picked)
+        destination_ix = cups.index(destination)
+        cups[destination_ix + 1:destination_ix + 1] = picked
 
-        cups[cups.index(destination)+1:cups.index(destination)+1] = picked
-
-        if cups.index(destination) < ix:
+        if destination_ix < ix:
             ix += 3
         ix += 1
         if (ix == len(cups)):
@@ -49,7 +47,6 @@ def iterate(cups, cnt):
         if loop % 10000 == 0:
             print(loop)
 
-    cups = cups[cups.index(1) + 1:] + cups[:cups.index(1)]
     return cups
 
 def solve(input, part):
@@ -57,13 +54,14 @@ def solve(input, part):
 
     if part == 1:
         cups = iterate(cups, 100)
+        cups = cups[cups.index(1) + 1:] + cups[:cups.index(1)]
         return ''.join([str(c) for c in cups])
     else:
         highest = max(cups)
         for i in range(1000000 - len(cups)):
             cups.append(highest + 1)
             highest += 1
-        cups = iterate(cups, 10000000)
+        cups = iterate(cups, 2000)
         # ix_1 = cups.index(1)
         # before = cups[ix_1 - 1] if ix_1 > 0 else cups[len(cups) - 1]
         # after = cups[ix_1 + 1] if ix_1 < len(cups) - 1 else cups[0]
