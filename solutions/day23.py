@@ -1,7 +1,21 @@
-def get_destination(current, lowest, highest, picked):
-    destination = current - 1
+class Node:
+    def __init__(self, value, next = None):
+        self.value = value
+        self.next = next
+
+def get_chain(start_at, dt, delimiter = ''):
+    head = dt[start_at]
+    next = head.next
+    chain = ''
+    while next.value != 1:
+        chain += f'{str(next.value)}{delimiter}'
+        next = next.next
+    return chain
+
+def get_destination_value(current, lowest, highest, picked):
+    destination = current.value - 1
     while True:
-        if destination == current:
+        if destination == current.value:
             destination -= 1
         if destination < lowest:
             destination = highest
@@ -13,60 +27,51 @@ def get_destination(current, lowest, highest, picked):
 def iterate(cups, cnt):
     lowest = min(cups)
     highest = max(cups)
-    loop = 0
-    next = cups[0]
-    while loop < cnt:
-        ix = cups.index(next)
-        current = next
-        destination = current - 1
 
-        picked = cups[ix + 1:ix + 4]
+    head = None
+    curr = None
 
-        cups[ix + 1:ix + 4] = []
-        if len(picked) < 3:
-            old_len = len(picked)
-            picked.extend(cups[0:3-len(picked)])
-            cups = cups[3 - old_len:]
+    dt = dict()
 
-        if ix < len(cups) - 1:
-            next = cups[ix + 1]
+    for el in cups:
+        if head == None:
+            head = Node(el)
+            curr = head
         else:
-            next = cups[0]
+            curr.next = Node(el)
+            curr = curr.next
 
-        destination = get_destination(current, lowest, highest, picked)
-        destination_ix = cups.index(destination)
-        cups[destination_ix + 1:destination_ix + 1] = picked
+        dt[el] = curr
+    curr.next = head
+    current = head
+    loop = 0
+    while loop < cnt:
+        following_1_node = current.next
+        following_2_node = following_1_node.next
+        following_3_node = following_2_node.next
+        picked = [following_1_node.value, following_2_node.value, following_3_node.value]
+        destination_value = get_destination_value(current, lowest, highest, picked)
 
-        if destination_ix < ix:
-            ix += 3
-        ix += 1
-        if (ix == len(cups)):
-            ix = 0
+        destination_node = dt[destination_value]
+
+        current.next = following_3_node.next
+        following_3_node.next = destination_node.next
+        destination_node.next = following_1_node
+
+        current = current.next
         loop += 1
-
-        if loop % 10000 == 0:
-            print(loop)
-
-    return cups
+    return dt
 
 def solve(input, part):
     cups = list(map(int, list(input)))
 
     if part == 1:
-        cups = iterate(cups, 100)
-        cups = cups[cups.index(1) + 1:] + cups[:cups.index(1)]
-        return ''.join([str(c) for c in cups])
+        dt = iterate(cups, 100)
+        return get_chain(1, dt)
     else:
         highest = max(cups)
-        for i in range(1000000 - len(cups)):
+        for _ in range(1000000 - len(cups)):
             cups.append(highest + 1)
             highest += 1
-        cups = iterate(cups, 2000)
-        # ix_1 = cups.index(1)
-        # before = cups[ix_1 - 1] if ix_1 > 0 else cups[len(cups) - 1]
-        # after = cups[ix_1 + 1] if ix_1 < len(cups) - 1 else cups[0]
-        # return before * after
-        return 2
-
-if __name__ == '__main__':
-    solve('916438275', 2)
+        dt = iterate(cups, 10000000)
+        return dt[1].next.value * dt[1].next.next.value

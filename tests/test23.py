@@ -16,11 +16,11 @@ class Part1(unittest.TestCase):
 
 class Part2(unittest.TestCase):
     def test_01(self):
-        result = day23.solve('916438275', 2)
+        result = day23.solve('389125467', 2)
         self.assertEqual(result, 149245887792)
-#     def test_in(self):
-#         result = day23.solve('916438275', 2)
-#         self.assertEqual(result, 2)
+    def test_in(self):
+        result = day23.solve('916438275', 2)
+        self.assertEqual(result, 404431096944)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
