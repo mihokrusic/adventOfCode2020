@@ -65,7 +65,7 @@ def solve(input, part):
     winner = None
     if part == 1:
         winner = play_regular_combat(decks)
-    if part == 2:
+    else:
         winner = play_recursive_combat(decks)
 
     return get_result(decks[winner])
