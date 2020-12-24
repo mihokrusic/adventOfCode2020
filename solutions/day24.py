@@ -12,24 +12,12 @@ movements = {
 
 def get_black_adjacent(field, pos):
     result = 0
-    adj_key = (pos[0] + 1, pos[1] - 1, pos[2])
-    if adj_key in field:
-        result += 1
-    adj_key = (pos[0] - 1, pos[1] + 1, pos[2])
-    if adj_key in field:
-        result += 1
-    adj_key = (pos[0] + 1, pos[1], pos[2] - 1)
-    if adj_key in field:
-        result += 1
-    adj_key = (pos[0] - 1, pos[1], pos[2] + 1)
-    if adj_key in field:
-        result += 1
-    adj_key = (pos[0], pos[1] - 1, pos[2] + 1)
-    if adj_key in field:
-        result += 1
-    adj_key = (pos[0], pos[1] + 1, pos[2] - 1)
-    if adj_key in field:
-        result += 1
+    result += int((pos[0] + 1, pos[1] - 1, pos[2]) in field)
+    result += int((pos[0] - 1, pos[1] + 1, pos[2]) in field)
+    result += int((pos[0] + 1, pos[1], pos[2] - 1) in field)
+    result += int((pos[0] - 1, pos[1], pos[2] + 1) in field)
+    result += int((pos[0], pos[1] - 1, pos[2] + 1) in field)
+    result += int((pos[0], pos[1] + 1, pos[2] - 1) in field)
     return result
 
 
@@ -68,35 +56,30 @@ def solve(input, part):
             else:
                 if key in field and (blacks_adjacent == 0 or blacks_adjacent > 2):
                     new_field.remove(key)
+
                 adj_key = (key[0] + 1, key[1] - 1, key[2])
                 if adj_key not in field:
-                    blacks_adjacent = get_black_adjacent(field, adj_key)
-                    if blacks_adjacent == 2:
+                    if get_black_adjacent(field, adj_key) == 2:
                         new_field.add(adj_key)
                 adj_key = (key[0] - 1, key[1] + 1, key[2])
                 if adj_key not in field:
-                    blacks_adjacent = get_black_adjacent(field, adj_key)
-                    if blacks_adjacent == 2:
+                    if get_black_adjacent(field, adj_key) == 2:
                         new_field.add(adj_key)
                 adj_key = (key[0] + 1, key[1], key[2] - 1)
                 if adj_key not in field:
-                    blacks_adjacent = get_black_adjacent(field, adj_key)
-                    if blacks_adjacent == 2:
+                    if get_black_adjacent(field, adj_key) == 2:
                         new_field.add(adj_key)
                 adj_key = (key[0] - 1, key[1], key[2] + 1)
                 if adj_key not in field:
-                    blacks_adjacent = get_black_adjacent(field, adj_key)
-                    if blacks_adjacent == 2:
+                    if get_black_adjacent(field, adj_key) == 2:
                         new_field.add(adj_key)
                 adj_key = (key[0], key[1] - 1, key[2] + 1)
                 if adj_key not in field:
-                    blacks_adjacent = get_black_adjacent(field, adj_key)
-                    if blacks_adjacent == 2:
+                    if get_black_adjacent(field, adj_key) == 2:
                         new_field.add(adj_key)
                 adj_key = (key[0], key[1] + 1, key[2] - 1)
                 if adj_key not in field:
-                    blacks_adjacent = get_black_adjacent(field, adj_key)
-                    if blacks_adjacent == 2:
+                    if get_black_adjacent(field, adj_key) == 2:
                         new_field.add(adj_key)
 
         field = new_field
